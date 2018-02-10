@@ -4,38 +4,14 @@ import numpy.testing as np_tst
 
 class testRootReachability(unittest.TestCase):
     def test_simple(self):
-        rr = RootReachability()
-        inp = """
-                    {
-                        "nodes": [{
-                                    "id": "M00"
-                                }, {
-                                    "id": "M01"
-                                }, {
-                                    "id": "M02"
-                                }
-                                ],
-                        "edges": [{
-                                    "from": "M01",
-                                    "to": "M02"
-                                    }, {
-                                    "from": "M00",
-                                    "to": "M02"
-                                    }, {
-                                    "from": "M01",
-                                    "to": "M00"
-                                    }
-                                ],
-                        "root": "M00"
-                    }
-                    """
-        # delete = {"from": "M01", "to": "M02"}
-        rr.construct_adjacency_lists(inp)
-        rr.delete_edge()
+        inp = """{"nodes": [{"id": "M00"}, {"id": "M01"}, {"id": "M02"}],"edges": [{"from": "M01","to": "M02"}, {"from": "M00","to": "M02"}, {"from": "M01","to": "M00"}],"root": "M00"}
+                """
+        delete = """{"from": "M01", "to": "M02"}"""
+        rr = RootReachability(input_from_user=False, json_input=inp,
+                              edge_to_delete=delete)
         np_tst.assert_array_equal(["M02"], rr.get_orphan_nodes())
 
     def test_complex_1(self):
-        rr = RootReachability()
         inp = """
             {
             "root": "M00",
@@ -121,16 +97,15 @@ class testRootReachability(unittest.TestCase):
         }
 
             """
-        # delete = {"from": "M07", "to": "M10"}
-        rr.construct_adjacency_lists(inp)
-        rr.delete_edge()
+        delete = """{"from": "M07", "to": "M10"}"""
+        rr = RootReachability(input_from_user=False, json_input=inp,
+                              edge_to_delete=delete)
         np_tst.assert_array_equal(['M05', 'M08', 'M07', 'M03', 'M06', 'M11',
                                    'M09'], rr.get_orphan_nodes())
 
     def test_complex_2(self):
-        rr = RootReachability()
         inp = """
-                    {
+        {
                     "root": "M00",
                     "edges": [{
                             "from": "M02",
@@ -214,7 +189,7 @@ class testRootReachability(unittest.TestCase):
                 }
 
                     """
-        # delete = {"from": "M04", "to": "M02"}
-        rr.construct_adjacency_lists(inp)
-        rr.delete_edge()
+        delete = """{"from": "M04", "to": "M02"}"""
+        rr = RootReachability(input_from_user=False, json_input=inp,
+                              edge_to_delete=delete)
         np_tst.assert_array_equal(['M04', 'M11', 'M09'], rr.get_orphan_nodes())

@@ -1,4 +1,5 @@
 import json
+from ast import literal_eval
 
 class MassCalculator:
     """Class to compute the mass of a given list of components.
@@ -13,6 +14,8 @@ class MassCalculator:
         orders of magnitude as keys and values respectively.
     allowed_units : array-like
         List of allowed mass units for the components.
+    components : array-like
+        List of components.
     """
 
     atomic_weights = {'hydrogen' : 1.00794, 'helium' : 4.002602, 'lithium' :
@@ -76,14 +79,79 @@ class MassCalculator:
 
     allowed_units = ["gram", "ounce", "pound", "mol"]
 
-    def calculate_mass(self, json_input):
+    def __init__(self, input_from_user=True, json_input=None):
         """
-        Function to compute the mass of a given list of components.
+        Class constructor to initialize fields.
 
         Parameters
         ----------
+        input_from_user : bool
+            Whether to take input from user or not. Set flag to False for
+            unit tests.
         json_input : str
             Input JSON string containing a list of components.
+
+        Raises
+        ------
+        ValueError
+            If no input is specified.
+        """
+
+        self.components = []
+        if input_from_user:
+            self.get_data()
+        elif json_input is not None:
+            self.get_data(json_input)
+        else:
+            raise ValueError("No input provided. Initialize class to either "
+                             "accept input from user to provide a JSON "
+                             "string.")
+
+    def get_data(self, json_input=None):
+        """Function to get data from the user.
+
+        Parameters
+        ----------
+        json_input : str, default=None
+
+        Returns
+        -------
+
+        Raises
+        ------
+        TypeError
+            If the input is not a dictionary.
+        ValueError
+            If the input dictionary is not of the specified format.
+        """
+
+        if json_input is None:
+            text = """Please input the list of components as a dictionary in 
+            a SINGLE LINE. For example:\n
+            {"components": [{"name": "carbon","mass": 1.6,"units":"kilograms"}, {"name": "sulfur", "mass": 36, "units": "mol"},{"name": "oxygen", "mass": 871, "units": "grams"}]}
+            Enter input: 
+            """
+            data = literal_eval(input(text))
+        else:
+            # Try parsing the string.
+            try:
+                data = json.loads(json_input)
+            except ValueError:
+                raise ValueError(
+                    "Couldn't parse input properly. Please check "
+                    "input and try again.")
+
+        if not isinstance(data, dict):
+            raise TypeError("Expected input is a dictionary. Please check "
+                             "input and try again.")
+        if "components" not in data or len(data) != 1:
+            raise ValueError("Expected key \"components\" not found in the "
+                             "input dictionary.")
+        self.components = data["components"]
+
+    def calculate_mass(self):
+        """
+        Function to compute the mass of a given list of components.
 
         Returns
         -------
@@ -97,7 +165,6 @@ class MassCalculator:
         Raises
         ------
         ValueError
-            If the JSON string couldn't be parsed properly.
             If any of the components is underspecified.
             If the name of the element is invalid.
             If invalid units are specified.
@@ -106,18 +173,11 @@ class MassCalculator:
             If invalid mass is specified.
         """
 
-        # Try parsing the string.
-        try:
-            data = json.loads(json_input)
-        except ValueError:
-            raise ValueError("Couldn't parse input properly. Please check "
-                             "input and try again.")
-
         # Total mass in grams.
         total_mass_g = 0.0
 
         # Loop through the list and add individual mass to total.
-        for comp in data["components"]:
+        for comp in self.components:
 
             # Check if component is underspecified.
             if len(comp) < 3:
@@ -248,24 +308,5 @@ class MassCalculator:
 
 if __name__ == "__main__":
     mc = MassCalculator()
-    inp = """
-            {
-                "components": [{
-                        "name": "carbon",
-                        "mass": 1.6,
-                        "units": "kilograms"
-                    }, {
-                        "name": "sulfur",
-                        "mass": 36,
-                        "units": "mol"
-                    }, {
-                        "name": "oxygen",
-                        "mass": 871,
-                        "units": "grams"
-                    }
-                ]
-            } 
-
-            """
-    mg, mlb = mc.calculate_mass(inp)
-    print(mg, mlb)
+    mg, mlb = mc.calculate_mass()
+    print("Mass of the list of components: {} g, {} lbs. ".format(mg, mlb))

@@ -2,15 +2,8 @@ import unittest
 from mass_calculator import MassCalculator
 
 class testMassCalculator(unittest.TestCase):
-
-    def setUp(self):
-        self.mc = MassCalculator()
-
-    def tearDown(self):
-        self.mc = None
-
     def test_simple(self):
-        json ="""
+        inp ="""
             {
                 "components": [{
                         "name": "carbon",
@@ -29,13 +22,14 @@ class testMassCalculator(unittest.TestCase):
             } 
 
         """
-        mg, mlb = self.mc.calculate_mass(json)
+        mc = MassCalculator(input_from_user=False, json_input=inp)
+        mg, mlb = mc.calculate_mass()
         self.assertEquals("3625.34", mg)
         self.assertEquals("7.99", mlb)
 
     def test_malformed(self):
         # Second component doesn't have mass.
-        json = """
+        inp = """
             {
                 "components": [{
                         "name": "carbon",
@@ -53,11 +47,12 @@ class testMassCalculator(unittest.TestCase):
             }
 
             """
+        mc = MassCalculator(input_from_user=False, json_input=inp)
         with self.assertRaises(ValueError):
-            self.mc.calculate_mass(json)
+            mc.calculate_mass()
 
         # Unusual characters present in units of the first component.
-        json = """
+        inp = """
             {
                 "components": [{
                         "name": "carbon",
@@ -74,36 +69,13 @@ class testMassCalculator(unittest.TestCase):
                     }
                 ]
             }
-
             """
+        mc = MassCalculator(input_from_user=False, json_input=inp)
         with self.assertRaises(ValueError):
-            self.mc.calculate_mass(json)
-
-        # Mass of the first component is not a number.
-        json = """
-            {
-                "components": [{
-                        "name": "carbon",
-                        "mass": 1.6n,
-                        "units": "kilograms"
-                    }, {
-                        "name": "sulfur",
-                        "mass": 36,                        
-                        "units": "mol"
-                    }, {
-                        "name": "oxygen",
-                        "mass": 871,
-                        "units": "grams"
-                    }
-                ]
-            }
-
-            """
-        with self.assertRaises(Exception):
-            self.mc.calculate_mass(json)
+            mc.calculate_mass()
 
         # Element name of the third component is invalid.
-        json = """
+        inp = """
             {
                 "components": [{
                         "name": "carbon",
@@ -122,11 +94,12 @@ class testMassCalculator(unittest.TestCase):
             }
 
             """
+        mc = MassCalculator(input_from_user=False, json_input=inp)
         with self.assertRaises(ValueError):
-            self.mc.calculate_mass(json)
+            mc.calculate_mass()
 
     def test_various_units(self):
-        json = """
+        inp = """
             {
                 "components": [{
                         "name": "sulfur",
@@ -137,11 +110,12 @@ class testMassCalculator(unittest.TestCase):
             } 
 
             """
-        mg, mlb = self.mc.calculate_mass(json)
+        mc = MassCalculator(input_from_user=False, json_input=inp)
+        mg, mlb = mc.calculate_mass()
         self.assertEquals("3206500.00", mg)
         self.assertEquals("7069.12", mlb)
 
-        json = """
+        inp = """
             {
                 "components": [{
                         "name": "sulfur",
@@ -152,11 +126,12 @@ class testMassCalculator(unittest.TestCase):
             } 
 
             """
-        mg, mlb = self.mc.calculate_mass(json)
+        mc = MassCalculator(input_from_user=False, json_input=inp)
+        mg, mlb = mc.calculate_mass()
         self.assertEquals("3206500.00", mg)
         self.assertEquals("7069.12", mlb)
 
-        json = """
+        inp = """
             {
                 "components": [{
                         "name": "carbon",
@@ -167,11 +142,12 @@ class testMassCalculator(unittest.TestCase):
             } 
 
             """
-        mg, mlb = self.mc.calculate_mass(json)
+        mc = MassCalculator(input_from_user=False, json_input=inp)
+        mg, mlb = mc.calculate_mass()
         self.assertEquals("1000000.00", mg)
         self.assertEquals("2204.62", mlb)
 
-        json = """
+        inp = """
             {
                 "components": [{
                         "name": "carbon",
@@ -182,11 +158,12 @@ class testMassCalculator(unittest.TestCase):
             } 
 
             """
-        mg, mlb = self.mc.calculate_mass(json)
+        mc = MassCalculator(input_from_user=False, json_input=inp)
+        mg, mlb = mc.calculate_mass()
         self.assertEquals("4535.92", mg)
         self.assertEquals("10.00", mlb)
 
-        json = """
+        inp = """
             {
                 "components": [{
                         "name": "carbon",
@@ -197,6 +174,7 @@ class testMassCalculator(unittest.TestCase):
             } 
 
             """
-        mg, mlb = self.mc.calculate_mass(json)
+        mc = MassCalculator(input_from_user=False, json_input=inp)
+        mg, mlb = mc.calculate_mass()
         self.assertEquals("28349523125.00", mg)
         self.assertEquals("62500000.00", mlb)
