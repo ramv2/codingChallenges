@@ -1,2 +1,2 @@
-# codingChallenges
-Repository for Aspen Tech coding challenges
+# Coding Challenges
+Repository for Aspen Tech coding challenges.
